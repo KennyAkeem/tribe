@@ -1,0 +1,171 @@
+
+.settings-page { min-height: calc(100dvh - 64px); background: radial-gradient(ellipse at 50% -25%, #e7eee7 0, transparent 48%), var(--paper); }
+.settings-content { width: min(900px, calc(100% - 56px)); margin: 0 auto; padding: 54px 0 88px; }
+.settings-heading { margin-bottom: 35px; }
+.settings-heading h1 { margin: 8px 0 7px; color: #2c3931; font: 500 38px/1.1 var(--font-display); }
+.settings-heading p { margin: 0; color: #7c8980; font-size: 13px; line-height: 1.6; }
+.settings-section { padding: 24px 0 27px; border-top: 1px solid #dfe6df; }
+.settings-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 17px; }
+.settings-section-heading h2 { margin: 6px 0 0; color: #354239; font: 500 21px/1.2 var(--font-display); }
+.settings-current-value { color: #849188; font-size: 10px; }
+.settings-mode-options { display: grid; width: min(100%, 520px); grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.settings-mode-option { display: flex; min-height: 47px; align-items: center; justify-content: center; gap: 8px; padding: 0 10px; border: 1px solid #e1e7e0; border-radius: 5px; background: rgba(255,255,255,.7); color: #67746b; font-size: 11px; font-weight: 650; cursor: pointer; transition: border-color .16s ease, background .16s ease, color .16s ease; }
+.settings-mode-option.selected { border-color: #8ca995; background: #eaf1ea; color: #336a55; }
+.settings-mode-option svg:last-child { margin-left: auto; }
+.settings-theme-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.settings-theme-option { position: relative; display: grid; min-width: 0; min-height: 150px; grid-template-columns: minmax(90px, .8fr) minmax(0, 1.2fr); align-items: center; gap: 17px; padding: 15px; border: 1px solid #e0e6df; border-radius: 7px; background: rgba(255,255,255,.7); color: #354239; text-align: left; cursor: pointer; transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease; }
+.settings-theme-option:hover { transform: translateY(-2px); border-color: #a7b9aa; }
+.settings-theme-option.selected { border-color: #71917a; box-shadow: 0 0 0 2px #71917a25; }
+.settings-theme-art { position: relative; display: grid; height: 116px; align-content: center; justify-items: center; gap: 8px; overflow: hidden; border-radius: 5px; background: #e9eee8; }
+.settings-theme-art i { display: block; width: 68%; height: 11px; border: 1px solid #dce3dc; border-radius: 3px; background: rgba(255,255,255,.85); }
+.settings-theme-art i:nth-child(2) { width: 52%; margin-left: -16%; }
+.settings-theme-art i:nth-child(3) { width: 60%; margin-left: 8%; }
+.settings-theme-art b { position: absolute; top: 19px; right: 17px; width: 23px; height: 23px; border-radius: 50%; background: #df9b78; }
+.settings-theme-copy { display: grid; min-width: 0; gap: 4px; }
+.settings-theme-number { color: #9ba69d; font-size: 9px; font-weight: 700; }
+.settings-theme-copy strong { color: #344139; font: 500 18px/1.15 var(--font-display); }
+.settings-theme-copy small { color: #60736a; font-size: 9px; font-weight: 700; }
+.settings-theme-description { margin-top: 3px; color: #89948c; font-size: 9px; line-height: 1.5; }
+.settings-theme-check { position: absolute; top: 10px; right: 10px; display: grid; width: 24px; height: 24px; place-items: center; border-radius: 50%; background: #336a55; color: white; }
+.settings-theme-option[data-preview-style="glass"] .settings-theme-art { background: linear-gradient(135deg, #d9e6e4, #e9ece9); }
+.settings-theme-option[data-preview-style="glass"] .settings-theme-art i { background: rgba(255,255,255,.58); backdrop-filter: blur(5px); box-shadow: 0 4px 10px #34483d18; }
+.settings-theme-option[data-preview-style="clay"] .settings-theme-art { border-radius: 15px; background: #e9e1d7; box-shadow: inset 4px 4px 8px #fff8, inset -5px -6px 10px #c6b9a588; }
+.settings-theme-option[data-preview-style="clay"] .settings-theme-art i { height: 13px; border: 0; border-radius: 9px; background: #f9f5ed; box-shadow: 3px 3px 6px #b9afa366, -3px -3px 6px #fff9; }
+.settings-theme-option[data-preview-style="skeuomorphic"] .settings-theme-art { background: linear-gradient(145deg, #d8ddd7, #f8faf7); }
+.settings-theme-option[data-preview-style="skeuomorphic"] .settings-theme-art i { border-color: #c6cec6; border-radius: 2px; background: linear-gradient(#fff, #e6ebe5); box-shadow: 0 2px 1px #89958a55; }
+.settings-theme-option[data-preview-style="neumorphic"] .settings-theme-art { background: #e9ece8; box-shadow: 7px 7px 13px #cbd0ca, -7px -7px 13px #fff; }
+.settings-theme-option[data-preview-style="neumorphic"] .settings-theme-art i { border: 0; background: #e9ece8; box-shadow: 3px 3px 6px #cbd0ca, -3px -3px 6px #fff; }
+.settings-switch-row { display: flex; min-height: 66px; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid #e9ede8; cursor: pointer; }
+.settings-switch-row > span { display: grid; gap: 4px; }
+.settings-switch-row strong { color: #46544a; font-size: 11px; }
+.settings-switch-row small { color: #87928a; font-size: 9px; line-height: 1.5; }
+.settings-switch-row input { width: 38px; height: 21px; flex: none; accent-color: #336a55; cursor: pointer; }
+.settings-device-note { margin: 14px 0 0; color: #929b94; font-size: 9px; line-height: 1.6; }
+.settings-contact-section > p { margin: -5px 0 14px; color: #77847b; font-size: 11px; line-height: 1.6; }
+.settings-contact-link { display: inline-flex; min-height: 39px; align-items: center; gap: 9px; padding: 0 11px; border: 1px solid #dfe7df; border-radius: 4px; color: #4f6c58; font-size: 10px; font-weight: 700; text-decoration: none; transition: background-color .16s ease, border-color .16s ease; }
+.settings-contact-link svg:last-child { margin-left: 12px; }
+.settings-contact-link:hover { border-color: #b7cbb8; background: #eef4ee; }
+.settings-about-brand { display: flex; align-items: center; gap: 14px; }
+.settings-about-icon { display: grid; width: 44px; height: 44px; flex: none; place-items: center; border: 1px solid #dfe7df; border-radius: 8px; background: #edf3ed; color: #4f765c; }
+.settings-about-brand .eyebrow { color: #809487; }
+.settings-about-brand h2 { margin: 4px 0; color: #354239; font: 500 21px/1.2 var(--font-display); }
+.settings-about-brand p { margin: 0; color: #7c8980; font-size: 10px; line-height: 1.5; }
+.settings-app-info { display: flex; flex-wrap: wrap; gap: 30px; margin: 18px 0 0 58px; padding-top: 13px; border-top: 1px solid #e9ede8; }
+.settings-app-info div { display: grid; gap: 4px; }
+.settings-app-info dt { color: #929b94; font-size: 9px; }
+.settings-app-info dd { margin: 0; color: #46544a; font-size: 10px; font-weight: 700; }
+.contact-content { max-width: 760px; }
+.contact-back { display: inline-flex; align-items: center; gap: 7px; margin: 0 0 26px; color: #728077; font-size: 10px; text-decoration: none; }
+.contact-back:hover { color: var(--green); }
+.contact-heading { margin-bottom: 20px; }
+.contact-options { display: grid; }
+.contact-option { display: flex; align-items: flex-start; gap: 16px; padding: 22px 0; border-top: 1px solid #dfe6df; }
+.contact-option-icon { display: grid; width: 42px; height: 42px; flex: none; place-items: center; border-radius: 50%; background: #e9f0e9; color: #4c775a; }
+.contact-option-copy { min-width: 0; }
+.contact-option-copy h2 { margin: 5px 0 6px; color: #354239; font: 500 21px/1.2 var(--font-display); }
+.contact-option-copy p { margin: 0 0 12px; color: #7b8880; font-size: 10px; line-height: 1.6; }
+.contact-email-link { color: #336a55; font-size: 11px; font-weight: 700; text-decoration: none; overflow-wrap: anywhere; }
+.contact-email-link:hover { text-decoration: underline; }
+.contact-chat-button { display: inline-flex; min-height: 36px; align-items: center; justify-content: center; gap: 7px; padding: 0 12px; border: 0; border-radius: 4px; background: #336a55; color: #fff; font-size: 10px; font-weight: 700; cursor: pointer; transition: background-color .16s ease, transform .16s ease; }
+.contact-chat-button:hover:not(:disabled) { background: #275641; transform: translateY(-1px); }
+.contact-chat-button:focus-visible { outline: 2px solid #77a68e; outline-offset: 3px; }
+.contact-chat-button:disabled { opacity: .7; cursor: wait; }
+.contact-chat-spinner { width: 14px; height: 14px; border: 2px solid #ffffff66; border-top-color: #fff; border-radius: 50%; animation: contact-spin .7s linear infinite; }
+@keyframes contact-spin { to { transform: rotate(360deg); } }
+.contact-chat-error { margin: 10px 0 0 !important; color: #a05048 !important; }
+.contact-chat-status { margin: 10px 0 0 !important; color: #758178 !important; }
+
+html[data-color-mode="dark"] { color-scheme: dark; --ink: #e8eee9; --muted: #a5b0a8; --line: #35423a; --paper: #171d19; --white: #232b25; --green: #8eb99b; --green-dark: #b2d0ba; }
+html[data-color-mode="dark"] body { background: #171d19; color: #e8eee9; }
+html[data-color-mode="dark"] body :where(h1, h2, h3, h4, p, label, dt, dd, span, small, strong, button, a, time, blockquote, legend) { color: #e1e9e2; }
+html[data-color-mode="dark"] :where(.app-shell, .dashboard-page, .profile-page, .admin-page, .friends-page, .settings-page, .account-status-page, .auth-page) { background-color: #171d19; background-image: radial-gradient(ellipse at 50% -25%, #29372e 0, transparent 48%); }
+html[data-color-mode="dark"] :where(.global-navigation, .global-mobile-navigation, .topbar, .surface, .post.surface, .notification-panel, .notification-toast, .notification-item, .push-prompt-card, .install-prompt-card, .sidebar-card, .dashboard-welcome-panel, .dashboard-account-panel, .password-reset-panel, .profile-editor, .admin-review-card, .admin-manage-panel, .account-status-panel, .inbox-panel, .conversation-panel, .details-panel, .call-window, .call-window-header, .settings-mode-option, .settings-theme-option) { border-color: #37443b; background-color: #232b25; box-shadow: none; }
+html[data-color-mode="dark"] .auth-aside { background-color: #26382c; background-image: radial-gradient(ellipse at 90% 85%, #52735a66, transparent 41%), linear-gradient(148deg, #293a2e, #202d24 53%, #19231d); }
+html[data-color-mode="dark"] :where(.global-navigation, .global-mobile-navigation, .topbar) { background-color: rgba(29, 36, 31, .96); }
+html[data-color-mode="dark"] :where(.global-navigation-link:hover, .global-navigation-link.active, .global-mobile-link.active, .side-link.active, .settings-mode-option.selected) { background-color: #33453a; color: #b7d8c0; }
+html[data-color-mode="dark"] :where(.side-link:hover, .notification-item:hover, .notification-item.unread) { background-color: #2b352e; }
+html[data-color-mode="dark"] :where(input:not([type="checkbox"]):not([type="file"]), textarea, select) { border-color: #46544a; background-color: #1b231d; color: #e1e9e2; }
+html[data-color-mode="dark"] :where(input, textarea, select)::placeholder { color: #9ba79e; }
+html[data-color-mode="dark"] :where(.admin-status, .notification-item-icon, .inbox-total-unread, .inbox-tabs button span) { background-color: #344239; color: #c9ddcd; }
+html[data-color-mode="dark"] .settings-heading h1, html[data-color-mode="dark"] .settings-section-heading h2, html[data-color-mode="dark"] .settings-theme-copy strong { color: #edf3ed; }
+html[data-color-mode="dark"] :where(.settings-about-brand h2, .settings-app-info dd) { color: #edf3ed; }
+html[data-color-mode="dark"] .profile-block-button { border-color: #604640; background: #342724; color: #e5b5aa; }
+html[data-color-mode="dark"] .profile-block-button:hover:not(:disabled), html[data-color-mode="dark"] .friends-action.danger:hover:not(:disabled) { border-color: #79534b; background: #432e2a; }
+html[data-color-mode="dark"] .friends-action.danger { border-color: #604640; background: #2a2220; color: #e5b5aa; }
+html[data-color-mode="dark"] .settings-section, html[data-color-mode="dark"] .settings-switch-row { border-color: #35423a; }
+html[data-color-mode="dark"] .settings-about-icon { border-color: #526257; background: #344239; color: #b7d8c0; }
+html[data-color-mode="dark"] .settings-app-info { border-color: #35423a; }
+html[data-color-mode="dark"] .settings-theme-art { background-color: #2d3730; }
+html[data-color-mode="dark"] .settings-theme-art i { border-color: #4a584d; background: #374239; }
+html[data-color-mode="dark"] .settings-theme-option[data-preview-style="neumorphic"] .settings-theme-art { box-shadow: 6px 6px 12px #111612, -6px -6px 12px #303a33; }
+html[data-color-mode="dark"] .settings-theme-option[data-preview-style="neumorphic"] .settings-theme-art i { box-shadow: 3px 3px 6px #111612, -3px -3px 6px #303a33; }
+html[data-color-mode="dark"] body :where(.global-navigation-link:hover, .global-navigation-link.active, .global-mobile-link.active, .side-link.active, .settings-mode-option.selected) { color: #b7d8c0; }
+html[data-color-mode="dark"] body :where(.share-button, .push-prompt-enable, .install-prompt-primary, .auth-status-action, .auth-submit, .profile-save-button, .profile-report-submit, .verification-submit, .admin-primary-button, .friends-action.primary, .send-message-button, .conversation-empty button) { color: #173124; }
+html[data-color-mode="dark"] .videos-page { background-color: #171d19; background-image: radial-gradient(ellipse at 50% -25%, #29372e 0, transparent 48%); }
+html[data-color-mode="dark"] :where(.video-watch, .video-queue, .post-menu) { border-color: #37443b; background-color: #232b25; color: #e1e9e2; }
+html[data-color-mode="dark"] :where(.post-share-menu, .reposted-post) { border-color: #37443b; background-color: #232b25; color: #e1e9e2; }
+html[data-color-mode="dark"] .video-watch-copy p, html[data-color-mode="dark"] .video-queue h2 { color: #e1e9e2; }
+html[data-color-mode="dark"] .video-queue-item { border-color: #35423a; background: #232b25; }
+html[data-color-mode="dark"] .video-queue-item.selected, html[data-color-mode="dark"] .post-menu button:hover { background: #33453a; }
+html[data-color-mode="dark"] .video-queue-copy strong, html[data-color-mode="dark"] .post-menu button { color: #e1e9e2; }
+html[data-color-mode="dark"] .post-share-menu button, html[data-color-mode="dark"] .reposted-post > header a, html[data-color-mode="dark"] .reposted-post > p { color: #e1e9e2; }
+html[data-color-mode="dark"] .post-share-menu button:hover { background-color: #33453a; }
+html[data-color-mode="dark"] .video-watch-actions button { border-color: #46544a; background: #1b231d; color: #e1e9e2; }
+html[data-color-mode="dark"] .video-queue-play { background: #344239; color: #c9ddcd; }
+html[data-color-mode="dark"] .videos-empty h2 { color: #edf3ed; }
+html[data-color-mode="dark"] body :where(.video-player-control-row button, .video-player-rate-label select, .media-viewer-close) { color: #fff; }
+html[data-color-mode="dark"] .password-visibility-toggle { color: #b7d8c0; }
+html[data-color-mode="dark"] .password-visibility-toggle:hover { background: #344239; color: #edf3ed; }
+html[data-color-mode="dark"] :where(.settings-contact-section > p, .contact-back, .contact-option-copy p, .contact-chat-status) { color: #a5b0a8; }
+html[data-color-mode="dark"] :where(.settings-contact-link, .contact-chat-button) { border-color: #526257; background: #344239; color: #e1e9e2; }
+html[data-color-mode="dark"] .contact-chat-button:hover:not(:disabled) { background: #405447; }
+html[data-color-mode="dark"] :where(.contact-option, .contact-option-icon) { border-color: #35423a; }
+html[data-color-mode="dark"] .contact-option-icon { background: #344239; color: #b7d8c0; }
+html[data-color-mode="dark"] .contact-option-copy h2 { color: #edf3ed; }
+html[data-color-mode="dark"] .contact-email-link { color: #b7d8c0; }
+
+html[data-ui-theme="glass"] .surface, html[data-ui-theme="glass"] .settings-theme-option, html[data-ui-theme="glass"] .settings-mode-option { backdrop-filter: blur(14px); }
+html[data-ui-theme="glass"] .settings-theme-option.selected { box-shadow: 0 0 0 2px #71917a25, 0 12px 30px #32483d12; }
+html[data-ui-theme="clay"] :where(.surface, .dashboard-welcome-panel, .dashboard-account-panel, .settings-theme-option, .settings-mode-option, .call-window) { border-radius: 14px; box-shadow: inset 2px 2px 3px #ffffff99, inset -3px -3px 7px #596b5514, 5px 7px 16px #31433312; }
+html[data-ui-theme="clay"] .global-navigation, html[data-ui-theme="clay"] .global-mobile-navigation { box-shadow: 0 5px 18px #31433316; }
+html[data-ui-theme="skeuomorphic"] :where(.surface, .dashboard-welcome-panel, .dashboard-account-panel, .settings-theme-option, .settings-mode-option, .call-window) { border-radius: 4px; border-color: #d4dbd2; background-image: linear-gradient(160deg, #fff, #f1f4ef); box-shadow: inset 0 1px #fff, 0 2px 2px #29372b12, 0 5px 12px #29372b0b; }
+html[data-ui-theme="skeuomorphic"] .share-button, html[data-ui-theme="skeuomorphic"] .verification-submit, html[data-ui-theme="skeuomorphic"] .admin-primary-button { border-top: 1px solid #ffffff88; box-shadow: inset 0 1px #ffffff44, 0 2px 2px #26372d28; }
+html[data-ui-theme="neumorphic"] :where(.surface, .dashboard-welcome-panel, .dashboard-account-panel, .settings-theme-option, .settings-mode-option, .call-window) { border-color: transparent; background: #edf0eb; box-shadow: 7px 7px 15px #cbd0ca, -7px -7px 15px #fff; }
+html[data-ui-theme="neumorphic"] .settings-mode-option.selected, html[data-ui-theme="neumorphic"] .settings-theme-option.selected { box-shadow: inset 4px 4px 8px #cbd0ca, inset -4px -4px 8px #fff; }
+html[data-ui-theme="neumorphic"] .global-navigation, html[data-ui-theme="neumorphic"] .global-mobile-navigation { box-shadow: 0 5px 16px #cbd0ca; }
+html[data-color-mode="dark"][data-ui-theme="skeuomorphic"] :where(.surface, .dashboard-welcome-panel, .dashboard-account-panel, .settings-theme-option, .settings-mode-option, .call-window) { border-color: #465349; background-image: linear-gradient(160deg, #303a33, #202720); box-shadow: inset 0 1px #ffffff12, 0 2px 2px #080b09; }
+html[data-color-mode="dark"][data-ui-theme="neumorphic"] :where(.surface, .dashboard-welcome-panel, .dashboard-account-panel, .settings-theme-option, .settings-mode-option, .call-window) { border-color: transparent; background: #232b25; box-shadow: 7px 7px 15px #111612, -7px -7px 15px #303a33; }
+html[data-color-mode="dark"][data-ui-theme="neumorphic"] .settings-mode-option.selected, html[data-color-mode="dark"][data-ui-theme="neumorphic"] .settings-theme-option.selected { box-shadow: inset 4px 4px 8px #111612, inset -4px -4px 8px #303a33; }
+
+html[data-density="compact"] .post { padding-top: 11px; }
+html[data-density="compact"] .composer { margin-top: 14px; padding-top: 12px; }
+html[data-density="compact"] .admin-user-row { min-height: 60px; padding-top: 10px; padding-bottom: 10px; }
+html[data-density="compact"] .friends-person-row { min-height: 58px; }
+html[data-reduce-motion="true"] *, html[data-reduce-motion="true"] *::before, html[data-reduce-motion="true"] *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+
+@media (max-width: 680px) {
+  .settings-page { min-height: calc(100dvh - 54px - 58px - env(safe-area-inset-bottom)); }
+  .settings-content { width: calc(100% - 34px); padding: 34px 0 calc(92px + env(safe-area-inset-bottom)); }
+  .settings-heading { margin-bottom: 24px; }
+  .settings-heading h1 { font-size: 32px; }
+  .settings-section { padding: 20px 0 22px; }
+  .settings-section-heading { align-items: flex-start; flex-direction: column; gap: 7px; }
+  .settings-mode-options { gap: 5px; }
+  .settings-mode-option { min-height: 43px; gap: 5px; padding: 0 6px; font-size: 9px; }
+  .settings-mode-option svg { width: 15px; height: 15px; }
+  .settings-theme-grid { grid-template-columns: 1fr; gap: 9px; }
+  .settings-theme-option { min-height: 127px; grid-template-columns: 112px minmax(0, 1fr); gap: 13px; padding: 11px; }
+  .settings-theme-art { height: 103px; }
+  .settings-app-info { margin-left: 0; }
+}
+
+html[data-color-mode="dark"] .profile-location-editor { border-color: #37443b; background: #1d261f; }
+html[data-color-mode="dark"] .profile-location-editor-copy strong { color: #e1e9e2; }
+html[data-color-mode="dark"] .profile-location-editor-copy a { color: #b7d8c0; }
+html[data-color-mode="dark"] .profile-location-update { border-color: #526257; background: #344239; color: #e1e9e2; }
+html[data-color-mode="dark"] .profile-location-update:hover:not(:disabled) { background: #405447; }
+
+@media (max-width: 680px) {
+  .profile-location-editor { grid-template-columns: 1fr; }
+  .profile-location-editor-actions { width: 100%; }
+}
