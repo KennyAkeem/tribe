@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Maximize, Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { Download, Maximize, Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { getMediaDownload } from "@/lib/media-download";
 
 const playbackRates = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
@@ -12,7 +13,7 @@ function formatTime(value) {
   return `${minutes}:${seconds}`;
 }
 
-export default function VideoPlayer({ src, autoPlay = false, onEnded, className = "" }) {
+export default function VideoPlayer({ src, autoPlay = false, preload = "none", onEnded, className = "" }) {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
   const [playing, setPlaying] = useState(false);
@@ -75,6 +76,8 @@ export default function VideoPlayer({ src, autoPlay = false, onEnded, className 
     else void playerRef.current?.requestFullscreen?.();
   }
 
+  const download = getMediaDownload(src, "video");
+
   return <div className={`custom-video-player ${className}`} ref={playerRef}>
     <video
       ref={videoRef}
@@ -82,7 +85,7 @@ export default function VideoPlayer({ src, autoPlay = false, onEnded, className 
       src={src}
       autoPlay={autoPlay}
       playsInline
-      preload="metadata"
+      preload={src.startsWith("blob:") ? "metadata" : preload}
       onClick={() => void togglePlayback()}
       onPlay={() => setPlaying(true)}
       onPause={() => setPlaying(false)}
@@ -99,6 +102,7 @@ export default function VideoPlayer({ src, autoPlay = false, onEnded, className 
         <button type="button" aria-label={muted ? "Unmute video" : "Mute video"} onClick={toggleMute}>{muted || volume === 0 ? <VolumeX size={17} /> : <Volume2 size={17} />}</button>
         <input className="video-player-volume" type="range" min="0" max="1" step="0.05" value={muted ? 0 : volume} onChange={(event) => changeVolume(event.target.value)} aria-label="Volume" />
         <label className="video-player-rate-label"><span className="sr-only">Playback speed</span><select aria-label="Playback speed" value={playbackRate} onChange={(event) => changeRate(event.target.value)}>{playbackRates.map((rate) => <option key={rate} value={rate}>{rate}x</option>)}</select></label>
+        <a href={download.href} download={download.filename} aria-label="Download video" title="Download video"><Download size={16} /></a>
         <button type="button" aria-label="Enter fullscreen" onClick={toggleFullscreen}><Maximize size={16} /></button>
       </div>
     </div>

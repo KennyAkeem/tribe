@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BadgeCheck, Check, Expand, Eye, EyeOff, Link2, MessageCircle, MoreHorizontal, Repeat2, Send, Share2, Trash2, Zap } from "lucide-react";
 import VideoPlayer from "@/components/video-player";
 import MediaViewer from "@/components/media-viewer";
@@ -19,7 +19,7 @@ function profileHref(username, profileId) {
   return identifier ? `/profile/${encodeURIComponent(identifier)}` : null;
 }
 
-export default function FeedPost({ post, onSendEnergy, onComment, currentProfile, currentUserId, onRepost, isOwner = false, onHidePost, onDeletePost }) {
+export default function FeedPost({ post, onSendEnergy, onComment, currentProfile, currentUserId, onRepost, isOwner = false, onHidePost, onDeletePost, readOnly = false }) {
   const [sendingEnergy, setSendingEnergy] = useState(false);
   const [commentDraft, setCommentDraft] = useState("");
   const [replyDraft, setReplyDraft] = useState("");
@@ -28,6 +28,9 @@ export default function FeedPost({ post, onSendEnergy, onComment, currentProfile
   const [shareOpen, setShareOpen] = useState(false);
   const [shareFeedback, setShareFeedback] = useState("");
   const [previewMedia, setPreviewMedia] = useState(null);
+  const menuRef = useRef(null);
+  const shareButtonRef = useRef(null);
+  const shareMenuRef = useRef(null);
   const comments = post.comments || [];
   const topLevelComments = comments.filter((comment) => !comment.parentCommentId);
   const repliesFor = (commentId) => comments.filter((comment) => comment.parentCommentId === commentId);
@@ -61,7 +64,7 @@ export default function FeedPost({ post, onSendEnergy, onComment, currentProfile
       <Avatar name={comment.author} imageUrl={comment.avatarUrl} size="avatar-tiny" />
       <div className="comment-entry-content">
         <p className="comment-bubble">{personHref ? <a href={personHref}>{comment.author}</a> : <strong>{comment.author}</strong>} {comment.content}</p>
-        <div className="comment-entry-actions"><time>{comment.time || "Just now"}</time><button type="button" onClick={() => setReplyingTo(rootId)}>Reply</button></div>
+        <div className="comment-entry-actions"><time>{comment.time || "Just now"}</time>{!readOnly && <button type="button" onClick={() => setReplyingTo(rootId)}>Reply</button>}</div>
       </div>
     </div>;
   }
@@ -69,8 +72,35 @@ export default function FeedPost({ post, onSendEnergy, onComment, currentProfile
   const authorHref = profileHref(post.username, post.profileId);
   const sourcePost = post.repostedPost || post;
   const sourceHref = profileHref(sourcePost.username, sourcePost.profileId);
-  const sourceUrl = () => new URL(`${sourceHref || "/"}#post-${sourcePost.id}`, window.location.origin).toString();
+  const postIdForLink = sourcePost?.id || post?.id;
+  const sourceUrl = () => {
+    if (!postIdForLink) return window.location.href;
+    return new URL(`/post/${encodeURIComponent(postIdForLink)}`, window.location.origin).toString();
+  };
   const canManage = isOwner && onHidePost && onDeletePost;
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handlePointerDown(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (!shareOpen) return;
+    function handlePointerDown(event) {
+      const target = event.target;
+      if (!shareMenuRef.current?.contains(target) && !shareButtonRef.current?.contains(target)) {
+        setShareOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [shareOpen]);
   const author = <>{authorHref ? <a href={authorHref}>{post.name}</a> : <strong>{post.name}</strong>}{post.isVerified && <BadgeCheck className="verified-badge" size={13} aria-label="Verified profile" />}</>;
 
   async function copyPostLink() {
@@ -111,7 +141,7 @@ export default function FeedPost({ post, onSendEnergy, onComment, currentProfile
           {author}
           <span>@{post.handle} <span className="dot">·</span> {post.time}{post.visibility === "friends" && <span className="post-privacy"> · Friends only</span>}</span>
         </div>
-        {canManage ? <div className="post-menu-wrap">
+        {canManage ? <div className="post-menu-wrap" ref={menuRef}>
           <button className="icon-button post-more" type="button" aria-label="Post options" aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}><MoreHorizontal size={20} /></button>
           {menuOpen && <div className="post-menu" role="menu">
             <button type="button" role="menuitem" onClick={() => { setMenuOpen(false); void onHidePost(post.id, !post.isHidden); }}>{post.isHidden ? <Eye size={15} /> : <EyeOff size={15} />}{post.isHidden ? "Show to others" : "Hide from others"}</button>
@@ -132,12 +162,12 @@ export default function FeedPost({ post, onSendEnergy, onComment, currentProfile
       {!post.repostedPost && post.mediaUrl && post.mediaType !== "video" ? <div className="post-image-wrap"><button className="post-image-preview" type="button" onClick={() => setPreviewMedia({ src: post.mediaUrl, type: "image" })} aria-label="Preview photo"><Image className="post-image" src={post.mediaUrl} alt={post.imageAlt || "Photo shared with this post"} fill sizes="(max-width: 680px) 100vw, 638px" unoptimized /><span><Expand size={16} /></span></button></div> : null}
       <div className="post-stats"><span><Zap className="energy-mark" size={13} fill="currentColor" /> {post.energyTotal || 0} energy</span><span>{comments.length} comments</span></div>
       <div className="post-actions">
-        <button className="post-action energy-action" type="button" disabled={sendingEnergy || post.profileId === currentUserId} onClick={() => void sendEnergy()}><Zap size={18} /> <span>{post.profileId === currentUserId ? "Your post" : sendingEnergy ? "Sending..." : "Send energy"}</span></button>
-        <button className="post-action" type="button" onClick={() => document.getElementById(`comment-${post.id}`)?.focus()}><MessageCircle size={18} /><span>Comment</span></button>
-        <div className="post-share-wrap">
-          <button className="post-action share-action" type="button" aria-expanded={shareOpen} onClick={() => { setShareOpen((open) => !open); setShareFeedback(""); }}><Share2 size={17} /><span>Share</span></button>
+        {!readOnly && <button className="post-action energy-action" type="button" disabled={sendingEnergy || post.profileId === currentUserId} onClick={() => void sendEnergy()}><Zap size={18} /> <span>{post.profileId === currentUserId ? "Your post" : sendingEnergy ? "Sending..." : "Send energy"}</span></button>}
+        {!readOnly && <button className="post-action" type="button" onClick={() => document.getElementById(`comment-${post.id}`)?.focus()}><MessageCircle size={18} /><span>Comment</span></button>}
+        <div className="post-share-wrap" ref={shareMenuRef}>
+          <button ref={shareButtonRef} className="post-action share-action" type="button" aria-expanded={shareOpen} onClick={() => { setShareOpen((open) => !open); setShareFeedback(""); }}><Share2 size={17} /><span>Share</span></button>
           {shareOpen && <div className="post-share-menu" role="menu" aria-label="Share post">
-            {onRepost && sourcePost.profileId !== currentUserId && post.profileId !== currentUserId && <button type="button" role="menuitem" onClick={() => { setShareOpen(false); void onRepost(sourcePost.id); }}><Repeat2 size={15} />Repost</button>}
+            {onRepost && sourcePost.profileId !== currentUserId && post.profileId !== currentUserId && <button type="button" role="menuitem" onClick={() => { setShareOpen(false); void onRepost(postIdForLink); }}><Repeat2 size={15} />Repost</button>}
             <button type="button" role="menuitem" onClick={() => void shareWithDevice()}><Share2 size={15} />More sharing options</button>
             <button type="button" role="menuitem" onClick={shareToWhatsApp}><Send size={15} />WhatsApp</button>
             <button type="button" role="menuitem" onClick={() => void copyPostLink()}><Link2 size={15} />Copy post link</button>
@@ -156,11 +186,11 @@ export default function FeedPost({ post, onSendEnergy, onComment, currentProfile
           </form>}
         </div>)}
       </div>}
-      <form className="quick-reply" onSubmit={(event) => void submitComment(event, commentDraft)}>
+      {!readOnly && <form className="quick-reply" onSubmit={(event) => void submitComment(event, commentDraft)}>
         <Avatar name={currentProfile?.full_name || "You"} imageUrl={currentProfile?.avatar_url || ""} size="avatar-small" />
         <input id={`comment-${post.id}`} value={commentDraft} onChange={(event) => setCommentDraft(event.target.value)} placeholder="Write a thoughtful comment..." aria-label="Write a comment" maxLength={2000} />
         <button type="submit" aria-label="Send comment" disabled={!commentDraft.trim()}><Send size={16} /></button>
-      </form>
+      </form>}
       {previewMedia && <MediaViewer src={previewMedia.src} type={previewMedia.type} onClose={() => setPreviewMedia(null)} />}
     </article>
   );

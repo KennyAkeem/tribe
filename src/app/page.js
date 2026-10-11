@@ -54,17 +54,18 @@ const mediaExtensionsByMimeType = {
             return <span className={`avatar ${tone} ${size}`}>{imageUrl ? <Image src={imageUrl} alt="" fill sizes="39px" unoptimized /> : initials}</span>;
           }
 
-          function SidebarLink({ icon: Icon, label, active = false, badge }) {
+          function SidebarLink({ href, icon: Icon, label, active = false, badge }) {
             return (
-              <button className={`side-link ${active ? "active" : ""}`} type="button">
+              <Link href={href} className={`side-link ${active ? "active" : ""}`}>
                 <Icon size={19} strokeWidth={active ? 2.3 : 1.8} />
                 <span>{label}</span>
                 {badge ? <span className="nav-badge">{badge}</span> : null}
-              </button>
+              </Link>
             );
           }
 
           export default function Home() {
+            const [todayLabel, setTodayLabel] = useState("");
             const [posts, setPosts] = useState([]);
             const [suggestions, setSuggestions] = useState([]);
             const [suggestionBusyId, setSuggestionBusyId] = useState("");
@@ -82,7 +83,13 @@ const mediaExtensionsByMimeType = {
             const [currentUser, setCurrentUser] = useState(null);
             const [currentProfile, setCurrentProfile] = useState(null);
             const displayName = currentProfile?.full_name || currentUser?.user_metadata?.full_name || currentUser?.email?.split("@")[0] || "Guest";
-
+            useEffect(() => {
+              setTodayLabel(new Intl.DateTimeFormat("en-US", {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+              }).format(new Date()).toUpperCase());
+            }, []);
             useEffect(() => {
               if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return;
               const supabase = createClient();
@@ -421,19 +428,29 @@ const mediaExtensionsByMimeType = {
               <div className="app-shell">
                 <div className="page-grid" id="feed">
                   <aside className="left-rail">
-                    <div className="welcome-block"><span className="eyebrow">TUESDAY, SEPTEMBER 29</span><h1>Your people,<br />your place.</h1><p>A little corner of the internet that feels like yours.</p></div>
+                    <div className="welcome-block"><span className="eyebrow">{todayLabel}</span><h1>Your people,<br />your place.</h1><p>A little corner of the internet that feels like yours.</p></div>
                     <nav className="primary-nav" aria-label="Main navigation">
                       <span className="nav-label">YOUR SPACE</span>
-                      <SidebarLink icon={HomeIcon} label="Home feed" active />
-                      <a className="side-link" href="/friends"><Users size={19} /><span>Friends</span></a>
-                      <a className="side-link" href="/messages"><MessageCircle size={19} /><span>Messages</span></a>
-                      <SidebarLink icon={Bell} label="Notifications" />
-                      <SidebarLink icon={Compass} label="Explore" />
+                      <SidebarLink href="/" icon={HomeIcon} label="Home feed" active />
+                      <Link className="side-link" href="/friends"><Users size={19} /><span>Friends</span></Link>
+                      <Link className="side-link" href="/messages"><MessageCircle size={19} /><span>Messages</span></Link>
+                      <SidebarLink href="/notifications" icon={Bell} label="Notifications" />
+                      <SidebarLink href="/friends" icon={Compass} label="Explore" />
                     </nav>
                     <div className="sidebar-bottom">
-                      <div className="sidebar-card"><div className="sidebar-card-icon"><Sparkles size={16} /></div><strong>Make it yours</strong><p>Add a photo and a few words to your profile.</p><a href="/dashboard">Edit profile <span>→</span></a></div>
-                      <Link className="side-link settings-link" href="/settings"><Settings size={18} /><span>Settings</span></Link>
-                      {currentUser ? <button className="side-link settings-link" type="button" onClick={handleAccountAction}><LogOut size={18} /><span>Sign out</span></button> : <><a className="side-link settings-link" href="/login"><LogOut size={18} /><span>Sign in</span></a><a className="side-link settings-link" href="/register"><Plus size={18} /><span>Create account</span></a></>}
+                      {currentUser ? <section className="sidebar-card profile-sidebar-card" aria-label="Your profile">
+                        <div className="sidebar-profile-identity">
+                          <Avatar initials={displayName.split(/\s+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase()} tone="avatar-me" size="avatar-small" imageUrl={currentProfile?.avatar_url} />
+                          <div><strong>{displayName}</strong><span>{currentProfile?.username ? `@${currentProfile.username}` : "Your profile"}</span></div>
+                          <Link className="sidebar-profile-view" href="/profile/me" aria-label="View your profile"><UserRound size={16} /></Link>
+                        </div>
+                        <Link className="sidebar-profile-edit" href="/dashboard">Edit profile</Link>
+                        <div className="sidebar-profile-links">
+                          <Link href="/settings"><Settings size={15} /><span>Settings</span></Link>
+                          <Link href="/skill-swap"><Sparkles size={15} /><span>Skill Swap</span></Link>
+                        </div>
+                      </section> : <div className="sidebar-card"><div className="sidebar-card-icon"><Sparkles size={16} /></div><strong>Make it yours</strong><p>Add a photo and a few words to your profile.</p><Link href="/dashboard">Edit profile <span>→</span></Link></div>}
+                      {currentUser ? <button className="side-link settings-link" type="button" onClick={handleAccountAction}><LogOut size={18} /><span>Sign out</span></button> : <><Link className="side-link settings-link" href="/login"><LogOut size={18} /><span>Sign in</span></Link><Link className="side-link settings-link" href="/register"><Plus size={18} /><span>Create account</span></Link></>}
                       <div className="rail-footer">© 2026 Tribe <span>·</span> Made for belonging</div>
                     </div>
                   </aside>

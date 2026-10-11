@@ -124,7 +124,7 @@ html[data-color-mode="dark"] .contact-option-icon { background: #344239; color: 
 html[data-color-mode="dark"] .contact-option-copy h2 { color: #edf3ed; }
 html[data-color-mode="dark"] .contact-email-link { color: #b7d8c0; }
 
-html[data-ui-theme="glass"] .surface, html[data-ui-theme="glass"] .settings-theme-option, html[data-ui-theme="glass"] .settings-mode-option { backdrop-filter: blur(14px); }
+html[data-ui-theme="glass"] .settings-theme-option, html[data-ui-theme="glass"] .settings-mode-option { backdrop-filter: blur(14px); }
 html[data-ui-theme="glass"] .settings-theme-option.selected { box-shadow: 0 0 0 2px #71917a25, 0 12px 30px #32483d12; }
 html[data-ui-theme="clay"] :where(.surface, .dashboard-welcome-panel, .dashboard-account-panel, .settings-theme-option, .settings-mode-option, .call-window) { border-radius: 14px; box-shadow: inset 2px 2px 3px #ffffff99, inset -3px -3px 7px #596b5514, 5px 7px 16px #31433312; }
 html[data-ui-theme="clay"] .global-navigation, html[data-ui-theme="clay"] .global-mobile-navigation { box-shadow: 0 5px 18px #31433316; }

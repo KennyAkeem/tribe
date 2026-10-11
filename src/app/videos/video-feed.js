@@ -29,7 +29,7 @@ export default function VideoFeed({ videos }) {
       <header className="videos-heading"><div><span className="eyebrow">TRIBE VIDEO</span><h1>Videos</h1><p>A watch queue from posts you can see.</p></div><span className="videos-total"><Clapperboard size={17} />{videos.length}</span></header>
       {activeVideo ? <div className="videos-layout">
         <section className="video-watch">
-          <VideoPlayer key={activeVideo.id} src={activeVideo.mediaUrl} autoPlay={autoPlayNext} onEnded={advanceVideo} />
+          <VideoPlayer key={activeVideo.id} src={activeVideo.mediaUrl} autoPlay={autoPlayNext} preload="metadata" onEnded={advanceVideo} />
           <div className="video-watch-copy">
             <span className="eyebrow">{activeIndex + 1} OF {videos.length}</span>
             {activeVideo.text && <p>{activeVideo.text}</p>}

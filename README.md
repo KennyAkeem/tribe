@@ -33,7 +33,7 @@ Open the local URL printed by Next.js. Copy `.env.example` to `.env.local`, then
 ## Deploy to Netlify
 
 1. Push this repository to a Git provider and import it into Netlify. Netlify detects Next.js and configures its maintained adapter automatically; do not set a static publish directory.
-2. Add the variables from `.env.example` in **Site configuration → Environment variables**. At minimum, set the two Supabase public variables and `NEXT_PUBLIC_SITE_URL` to your production HTTPS domain. Set `SUPABASE_SERVICE_ROLE_KEY` and `VERIFICATION_ID_ENCRYPTION_KEY` as server-only variables for verification uploads and admin review.
+2. Add the variables from `.env.example` in **Site configuration → Environment variables**. At minimum, set the two Supabase public variables and `NEXT_PUBLIC_SITE_URL` to your production HTTPS domain. Set `SUPABASE_SERVICE_ROLE_KEY` and `VERIFICATION_ID_ENCRYPTION_KEY` as server-only variables for verification uploads and admin review. To enable device push, also set `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` (server-only), and `VAPID_SUBJECT`, then redeploy.
 3. Set the Supabase Auth site URL to your production domain and add `https://your-domain/auth/callback` to allowed redirect URLs. Keep localhost callback URLs for local testing.
 4. Apply all Supabase migrations before enabling the corresponding app features. Redeploy after changing environment variables.
 

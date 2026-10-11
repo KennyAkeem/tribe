@@ -1,3 +1,11 @@
+self.addEventListener("install", (event) => {
+  event.waitUntil(self.skipWaiting());
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
 self.addEventListener("push", (event) => {
   let payload = {};
   try {
@@ -8,13 +16,16 @@ self.addEventListener("push", (event) => {
 
   event.waitUntil((async () => {
     const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-    if (windows.some((client) => client.focused)) return;
+    if (windows.some((client) => client.visibilityState === "visible")) return;
 
     await self.registration.showNotification(payload.title || "Tribe", {
       body: payload.body || "You have a new update on Tribe.",
       icon: "/app-icon.jpeg",
       badge: "/app-icon.jpeg",
-      tag: payload.tag || "tribe-notification",
+      tag: payload.tag || `tribe-notification-${Date.now()}`,
+      renotify: true,
+      vibrate: [200, 100, 200],
+      timestamp: Number(payload.timestamp) || Date.now(),
       data: { url: payload.url || "/" },
     });
   })());

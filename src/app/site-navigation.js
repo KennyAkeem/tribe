@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Clapperboard, House, LogIn, LogOut, MessageCircle, Settings, ShieldCheck, Sparkles, UserRound, Users } from "lucide-react";
+import { Clapperboard, House, LogIn, LogOut, MessageCircle, ShieldCheck, UserRound, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import EnergyBalance from "@/components/energy-balance";
 import NotificationCenter from "@/app/notifications/notification-center";
@@ -13,10 +13,8 @@ const destinations = [
   { href: "/", label: "Home", Icon: House },
   { href: "/friends", label: "Friends", Icon: Users },
   { href: "/messages", label: "Messages", Icon: MessageCircle },
-  { href: "/skill-swap", label: "Skill Swap", Icon: Sparkles },
   { href: "/videos", label: "Videos", Icon: Clapperboard },
   { href: "/profile/me", label: "My profile", Icon: UserRound },
-  { href: "/settings", label: "Settings", Icon: Settings },
 ];
 
 export default function SiteNavigation() {

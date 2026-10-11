@@ -12,6 +12,10 @@ export async function POST(request) {
   const { user, error: authError } = await getAuthenticatedUser();
   if (authError || !user) return NextResponse.json({ error: "Sign in to enable notifications." }, { status: 401 });
 
+  if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY || !process.env.VAPID_SUBJECT) {
+    return NextResponse.json({ error: "Push notifications are not configured for this site. Contact the site administrator." }, { status: 503 });
+  }
+
   let subscription;
   try {
     subscription = await request.json();

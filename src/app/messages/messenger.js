@@ -31,6 +31,11 @@ function durationLabel(value) {
   return `${minutes}:${seconds}`;
 }
 
+function isTransientRealtimeError(error) {
+  const message = typeof error === "string" ? error : error?.message || "";
+  return /socket closed|websocket|network|connection|timed? out|fetch failed/i.test(message);
+}
+
 function Avatar({ person, small = false, online = false }) {
   return (
     <span className={`messenger-avatar ${small ? "small" : ""}`}>
@@ -407,9 +412,9 @@ export default function Messenger({ currentUser, initialConversationId = null })
           otherId: signal.sender_id,
           person: {
             id: signal.sender_id,
-            name: caller?.full_name || caller?.username || "Tribe member",
-            username: caller?.username || "",
-            avatarUrl: caller?.avatar_url || "",
+            name: "Tribe member",
+            username: "",
+            avatarUrl: "",
           },
           mediaType: payload.mediaType === "video" ? "video" : "audio",
           direction: "incoming",
@@ -504,12 +509,17 @@ export default function Messenger({ currentUser, initialConversationId = null })
       .order("updated_at", { ascending: false });
 
     if (inboxError) {
-      setError(inboxError.message.includes("conversations")
-        ? "Messenger tables are not installed yet. Apply the 202609290002_messenger.sql migration in Supabase."
-        : inboxError.message);
+      if (inboxError.message.includes("conversations")) {
+        setError("Messenger tables are not installed yet. Apply the 202609290002_messenger.sql migration in Supabase.");
+      } else if (isTransientRealtimeError(inboxError)) {
+        setRealtimeStatus("Reconnecting");
+      } else {
+        setError(inboxError.message);
+      }
       setLoadingInbox(false);
       return;
     }
+    setError((current) => isTransientRealtimeError(current) ? "" : current);
 
     if (!rows?.length) {
       setConversations([]);
@@ -523,7 +533,10 @@ export default function Messenger({ currentUser, initialConversationId = null })
       .select("id, full_name, username, avatar_url")
       .in("id", otherIds);
 
-    if (profileError) setError(profileError.message);
+    if (profileError) {
+      if (isTransientRealtimeError(profileError)) setRealtimeStatus("Reconnecting");
+      else setError(profileError.message);
+    }
     const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, {
       id: profile.id,
       name: profile.full_name || profile.username || "Tribe member",
@@ -563,8 +576,12 @@ export default function Messenger({ currentUser, initialConversationId = null })
       .order("created_at", { ascending: true })
       .limit(200);
 
-    if (messagesError) setError(messagesError.message);
+    if (messagesError) {
+      if (isTransientRealtimeError(messagesError)) setRealtimeStatus("Reconnecting");
+      else setError(messagesError.message);
+    }
     else {
+      setError((current) => isTransientRealtimeError(current) ? "" : current);
       setMessages(data ?? []);
       const unreadIds = (data ?? []).filter((message) => message.sender_id !== currentUser.id && !message.read_at).map((message) => message.id);
       if (unreadIds.length) {
@@ -588,9 +605,8 @@ export default function Messenger({ currentUser, initialConversationId = null })
       .subscribe((status, subscriptionError) => {
         if (!active) return;
         if (status === "SUBSCRIBED") setRealtimeStatus("Live");
-        else if (["CHANNEL_ERROR", "TIMED_OUT"].includes(status)) {
-          setRealtimeStatus("Unavailable");
-          setError(subscriptionError?.message || "Live updates are unavailable. Check your Supabase Realtime settings.");
+        else if (["CHANNEL_ERROR", "TIMED_OUT", "CLOSED"].includes(status)) {
+          setRealtimeStatus("Reconnecting");
         }
       });
     void loadInbox(supabase);
@@ -600,6 +616,44 @@ export default function Messenger({ currentUser, initialConversationId = null })
       if (typingTimer.current) clearTimeout(typingTimer.current);
     };
   }, [currentUser.id, loadInbox, loadMessages]);
+
+  useEffect(() => {
+    const supabase = clientRef.current;
+    if (!supabase) return undefined;
+
+    let active = true;
+    let recoveryTimer;
+    function recoverConnection() {
+      if (!active || document.visibilityState !== "visible" || !navigator.onLine) return;
+      clearTimeout(recoveryTimer);
+      recoveryTimer = setTimeout(() => {
+        if (!active) return;
+        void (async () => {
+          await supabase.auth.getSession();
+          if (!supabase.realtime.isConnected() && !supabase.realtime.isConnecting()) {
+            setRealtimeStatus("Reconnecting");
+            supabase.realtime.connect();
+          }
+          const conversationId = activeIdRef.current;
+          if (conversationId) void loadMessages(conversationId, supabase);
+          else void loadInbox(supabase);
+        })();
+      }, 200);
+    }
+
+    document.addEventListener("visibilitychange", recoverConnection);
+    window.addEventListener("focus", recoverConnection);
+    window.addEventListener("online", recoverConnection);
+    window.addEventListener("pageshow", recoverConnection);
+    return () => {
+      active = false;
+      clearTimeout(recoveryTimer);
+      document.removeEventListener("visibilitychange", recoverConnection);
+      window.removeEventListener("focus", recoverConnection);
+      window.removeEventListener("online", recoverConnection);
+      window.removeEventListener("pageshow", recoverConnection);
+    };
+  }, [loadInbox, loadMessages]);
 
   useEffect(() => {
     const supabase = clientRef.current;
@@ -631,8 +685,7 @@ export default function Messenger({ currentUser, initialConversationId = null })
             })
             .catch((signalError) => setCallError(signalError.message));
         } else if (["CHANNEL_ERROR", "TIMED_OUT"].includes(status)) {
-          setCallError("Call signaling is unavailable. Apply the calls migration and check Supabase Realtime.");
-          if (subscriptionError?.message) setError(subscriptionError.message);
+          if (callRef.current) setCallError("Call connection interrupted. Reconnecting...");
         }
       });
     return () => {
@@ -716,8 +769,15 @@ export default function Messenger({ currentUser, initialConversationId = null })
       if (typingTimer.current) clearTimeout(typingTimer.current);
       if (payload?.typing) typingTimer.current = setTimeout(() => setTyping(false), 2500);
     });
+    let hasJoined = false;
     channel.subscribe(async (status) => {
-      if (status === "SUBSCRIBED") await channel.track({ online_at: new Date().toISOString() });
+      if (status === "SUBSCRIBED") {
+        await channel.track({ online_at: new Date().toISOString() });
+        if (hasJoined) void loadMessages(activeId, supabase);
+        hasJoined = true;
+      } else if (["CHANNEL_ERROR", "TIMED_OUT", "CLOSED"].includes(status)) {
+        setRealtimeStatus("Reconnecting");
+      }
     });
     return () => {
       active = false;
@@ -838,7 +898,7 @@ export default function Messenger({ currentUser, initialConversationId = null })
               : filteredConversations.length ? filteredConversations.map((conversation) => <ConversationRow key={conversation.id} conversation={{ ...conversation, online: onlineIds.includes(conversation.person.id) }} active={conversation.id === activeId} onSelect={setActiveId} />)
                 : <div className="inbox-empty"><span className="empty-message-icon"><MessageCircle size={20} /></span><strong>{error ? "Messenger setup needed" : activeTab === "unread" ? "No unread messages" : "Your inbox is ready"}</strong><p>{error || (activeTab === "unread" ? "You’re all caught up." : "Search for a person above to start a conversation.")}</p></div>}
           </div>
-          <div className="inbox-footer"><span className={`inbox-online-dot ${realtimeStatus !== "Live" ? "offline" : ""}`} />{realtimeStatus === "Live" ? "Live messages enabled" : realtimeStatus === "Connecting" ? "Connecting to live messages" : "Live updates unavailable"}</div>
+          <div className="inbox-footer"><span className={`inbox-online-dot ${realtimeStatus !== "Live" ? "offline" : ""}`} />{realtimeStatus === "Live" ? "Live messages enabled" : realtimeStatus === "Connecting" ? "Connecting to live messages" : realtimeStatus === "Reconnecting" ? "Reconnecting to live messages" : "Live updates unavailable"}</div>
         </aside>
 
         <section className="conversation-panel" aria-label="Conversation">

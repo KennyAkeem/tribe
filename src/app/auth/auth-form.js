@@ -50,6 +50,10 @@ export default function AuthForm({ mode }) {
       const email = formData.get("email");
       const password = formData.get("password");
       if (isRegister) {
+        const requestedReferralCode = new URLSearchParams(window.location.search).get("ref")?.trim() || "";
+        const referralMetadata = /^[a-f0-9]{24}$/i.test(requestedReferralCode)
+          ? { referral_code: requestedReferralCode.toLowerCase() }
+          : {};
         const callbackUrl = new URL("/auth/callback", window.location.origin);
         callbackUrl.searchParams.set("next", "/login/success?verified=1&next=%2Fdashboard");
         const { data, error: signUpError } = await supabase.auth.signUp({
@@ -57,7 +61,7 @@ export default function AuthForm({ mode }) {
           password,
           options: {
             emailRedirectTo: callbackUrl.toString(),
-            data: { full_name: formData.get("name") },
+            data: { full_name: formData.get("name"), ...referralMetadata },
           },
         });
 

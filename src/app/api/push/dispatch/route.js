@@ -48,8 +48,8 @@ export async function POST(request) {
       notification = {
         title: "New message",
         body: "You have a new message on Tribe.",
-        url: "/messages",
-        tag: `tribe-message-${message.conversation_id}`,
+        url: `/messages?conversation=${encodeURIComponent(message.conversation_id)}`,
+        tag: `tribe-message-${message.id}`,
       };
     } else {
       const { data: friendRequest, error } = await service.from("friend_requests")
@@ -111,9 +111,19 @@ export async function POST(request) {
       }
     }));
 
+    const sent = results.filter((result) => result.status === "fulfilled").length;
+    if (!sent) {
+      const { error: cleanupError } = await service.from("push_dispatches")
+        .delete()
+        .eq("notification_type", body.type)
+        .eq("entity_id", body.id);
+      if (cleanupError) throw cleanupError;
+    }
+
     return NextResponse.json({
       ok: true,
-      sent: results.filter((result) => result.status === "fulfilled").length,
+      sent,
+      failed: results.length - sent,
     });
   } catch {
     return NextResponse.json({ error: "Could not deliver push notifications." }, { status: 503 });

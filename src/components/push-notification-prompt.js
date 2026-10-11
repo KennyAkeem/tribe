@@ -18,7 +18,10 @@ async function persistSubscription(subscription) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(subscription),
   });
-  if (!response.ok) throw new Error("Could not save this device's notification settings.");
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    throw new Error(result.error || "Could not save this device's notification settings.");
+  }
 }
 
 export default function PushNotificationPrompt({ userId }) {
@@ -120,7 +123,17 @@ export default function PushNotificationPrompt({ userId }) {
     }
   }
 
-  if (!userId || !publicKey || !("serviceWorker" in (typeof navigator === "undefined" ? {} : navigator))) return null;
+  if (!userId || !("serviceWorker" in (typeof navigator === "undefined" ? {} : navigator))) return null;
+
+  if (!publicKey) return <aside className="push-prompt" role="status">
+    <div className="push-prompt-card">
+      <span className="push-prompt-icon"><Bell size={20} /></span>
+      <div className="push-prompt-copy">
+        <p>Push alerts unavailable</p>
+        <h2>Notifications aren’t configured for this site yet. Contact the site administrator.</h2>
+      </div>
+    </div>
+  </aside>;
 
   return (
     <>

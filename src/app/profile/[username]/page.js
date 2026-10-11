@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck, MapPin } from "lucide-react";
+import { BadgeCheck, MapPin, Settings, Sparkles } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { addSignedMediaUrls, fetchPostRows } from "@/lib/supabase/post-media";
+import ReferralInvite from "./referral-invite";
 import ProfileBlockAction from "./profile-block-action";
 import ProfileFriendAction from "./profile-friend-action";
 import ProfileSections from "./profile-sections";
@@ -45,6 +46,17 @@ export default async function ProfilePage({ params }) {
   if (profileResult.error?.message.includes("is_verified")) profileResult = await queryProfile(false, false).maybeSingle();
   const { data: profile, error: profileError } = profileResult;
   if (profileError || !profile) notFound();
+
+  let referralCode = null;
+  let referralCount = 0;
+  if (username === "me" && user) {
+    const [{ data: referralProfile }, referralResult] = await Promise.all([
+      supabase.from("profiles").select("referral_code").eq("id", profile.id).maybeSingle(),
+      supabase.from("user_referrals").select("referred_user_id", { count: "exact", head: true }).eq("referrer_id", profile.id),
+    ]);
+    referralCode = referralProfile?.referral_code || null;
+    referralCount = referralResult.count || 0;
+  }
 
   const [postsResult, { data: viewerProfile }, verificationResult] = await Promise.all([
     fetchPostRows(supabase, (postsQuery) => postsQuery.eq("author_id", profile.id).order("created_at", { ascending: false })),
@@ -112,7 +124,12 @@ export default async function ProfilePage({ params }) {
         <header className="profile-summary surface">
           <span className="profile-avatar">{profile.avatar_url ? <Image src={profile.avatar_url} alt="" fill sizes="96px" unoptimized /> : initials}</span>
           <div className="profile-summary-copy"><span className="eyebrow">TRIBE PROFILE</span><h1>{displayName}{profile.is_verified && <BadgeCheck className="verified-badge" size={20} aria-label="Verified profile" />}</h1><p className="profile-username">{profile.username ? `@${profile.username}` : "Member"}</p>{profile.location && <p className="profile-location"><MapPin size={14} /><span>{profile.location}</span></p>}{profile.bio && <p className="profile-bio">{profile.bio}</p>}</div>
-          {isOwnProfile && <Link className="profile-edit-link" href="/dashboard">Edit profile</Link>}
+          {isOwnProfile && <div className="profile-summary-actions">
+            <Link className="profile-edit-link" href="/dashboard">Edit profile</Link>
+            <Link className="profile-edit-link" href="/settings"><Settings size={14} />Settings</Link>
+            <Link className="profile-edit-link" href="/skill-swap"><Sparkles size={14} />Skill Swap</Link>
+            {referralCode && <ReferralInvite code={referralCode} count={referralCount} />}
+          </div>}
           {!isOwnProfile && <div className="profile-connection-actions">
             <ProfileFriendAction viewerId={user?.id || null} targetId={profile.id} username={profile.username} />
             {user && <ProfileBlockAction targetId={profile.id} targetName={displayName} />}
